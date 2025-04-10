@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="@drawable/loginbanckground">
+
+    <EditText
+        android:id="@+id/emailET"
+        android:layout_width="350dp"
+        android:layout_height="55dp"
+        android:hint="Email"
+        android:drawableLeft="@drawable/baseline_email_24"
+        android:autofillHints="emailAddress"
+        android:defaultFocusHighlightEnabled="true"
+        android:textColorHint="@color/black"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/rounded_background"
+        android:paddingLeft="20dp"
+        />
+    <EditText
+        android:id="@+id/passET"
+        android:layout_width="350dp"
+        android:layout_height="55dp"
+        android:hint="Password"
+        android:layout_below="@+id/emailET"
+        android:autofillHints="emailAddress"
+        android:defaultFocusHighlightEnabled="true"
+        android:drawableLeft="@drawable/baseline_lock_24"
+        android:textColorHint="@color/black"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/rounded_background"
+        android:paddingLeft="20dp"
+        android:layout_marginTop="10dp"
+        />
+    <Button
+        android:id="@+id/logintBT"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:text="Login"
+        android:layout_below="@+id/passET"
+        android:autofillHints="emailAddress"
+        android:textColor="@color/black"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="13dp"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:backgroundTint="#F1A303"
+        />
+
+    <TextView
+        android:id="@+id/forgotPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logintBT"
+        android:layout_marginTop="15dp"
+        android:text="Forgot Password?"
+        android:layout_centerHorizontal="true"
+        />
+    <TextView
+        android:id="@+id/gosignUpTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/forgotPass"
+        android:layout_marginTop="12dp"
+        android:text="Don't have and account ?"
+        android:layout_centerHorizontal="true"
+        />
+
+  </RelativeLayout>

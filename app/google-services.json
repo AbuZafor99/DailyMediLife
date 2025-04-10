@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "940844678527",
+    "project_id": "knowledge-check-37cd6",
+    "storage_bucket": "knowledge-check-37cd6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:940844678527:android:35207457086d1da9e46e4a",
+        "android_client_info": {
+          "package_name": "com.example.knowledgecheck"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR3kr0IkSd5WQcPOTsuSL15DYmQmB4GjI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

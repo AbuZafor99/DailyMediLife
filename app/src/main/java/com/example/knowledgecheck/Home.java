@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -16,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class Home extends AppCompatActivity {
     FirebaseAuth mAuth;
+    CardView cardTextSummary, cardFlashcards, cardMathSolver, cardCodeGenerator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +29,37 @@ public class Home extends AppCompatActivity {
         setSupportActionBar(toolbar);
         mAuth=FirebaseAuth.getInstance();
 
+        cardTextSummary = findViewById(R.id.cardTextSummary);
+        cardFlashcards = findViewById(R.id.cardFlashcards);
+        cardMathSolver = findViewById(R.id.cardMathSolver);
+        cardCodeGenerator = findViewById(R.id.cardCodeGenerator);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+
         });
-    }
+        // Set onClick listeners
+        cardTextSummary.setOnClickListener(v -> {
+            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
+            startActivity(intent);
+        });
+
+        cardFlashcards.setOnClickListener(v -> {
+            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
+            startActivity(intent);
+        });
+
+        cardMathSolver.setOnClickListener(v -> {
+            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
+            startActivity(intent);
+        });
+
+        cardCodeGenerator.setOnClickListener(v -> {
+            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
+            startActivity(intent);
+        });    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

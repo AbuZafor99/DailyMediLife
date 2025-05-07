@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">Knowledge Check</string>
+    <string name="app_name">Health Mate</string>
+    <string name="greeting">Hello, User!</string>
+    <string name="date">Wednesday, May 7, 2025</string>
+    <string name="blank_data">----</string>
+    <string name="see_all">See All</string>
+    <string name="diet_task">Food &amp; Task</string>
+    <string name="add_prescription">Add Prescription</string>
 </resources>

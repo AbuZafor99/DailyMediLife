@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightBlue"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/tick_logo"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TicTacToe"
+            android:layout_marginStart="10dp"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <!-- Game Status Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/statusCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/headerLayout"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Player X's Turn"
+                android:textAlignment="center"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:id="@+id/tvPlayerX"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Player X: 0"
+                    android:textAlignment="center"
+                    android:textColor="@color/x_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvPlayerO"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Player O: 0"
+                    android:textAlignment="center"
+                    android:textColor="@color/o_color"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Game Board Centered -->
+    <GridLayout
+        android:id="@+id/grd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:columnCount="3"
+        android:rowCount="3"
+        android:layout_marginTop="16dp">
+
+        <!-- 9 Buttons for the grid -->
+        <Button android:id="@+id/btn1" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn2" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn3" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn4" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn5" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn6" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn7" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn8" style="@style/buttonStyle" android:onClick="check" />
+        <Button android:id="@+id/btn9" style="@style/buttonStyle" android:onClick="check" />
+    </GridLayout>
+
+    <!-- Reset Button at Bottom -->
+    <Button
+        android:id="@+id/btnReset"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:text="Reset Game"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/darkBlue"
+        android:textSize="16sp"
+        android:layout_marginTop="24dp" />
+</RelativeLayout>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,9 +16,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class Home extends AppCompatActivity {
-    FirebaseAuth mAuth;
-    CardView cardTextSummary, cardFlashcards, cardMathSolver, cardCodeGenerator;
+    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private CardView bmiCV;
+    private TextView tvDate, seeAllFoodTV, seeAllTaskTV;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,58 +32,68 @@ public class Home extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        mAuth=FirebaseAuth.getInstance();
-
-        cardTextSummary = findViewById(R.id.cardTextSummary);
-        cardFlashcards = findViewById(R.id.cardFlashcards);
-        cardMathSolver = findViewById(R.id.cardMathSolver);
-        cardCodeGenerator = findViewById(R.id.cardCodeGenerator);
-
+        // Handle edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        initViews();
+        setCurrentDate();
+
+        bmiCV.setOnClickListener(v -> {
+            startActivity(new Intent(Home.this, BMICalculateActivity.class));
 
         });
-        // Set onClick listeners
-        cardTextSummary.setOnClickListener(v -> {
-            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
+
+        seeAllFoodTV.setOnClickListener(v -> {
+            Intent intent = new Intent(Home.this, FoodScheduleActivity.class);
             startActivity(intent);
         });
 
-        cardFlashcards.setOnClickListener(v -> {
-            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
+        seeAllTaskTV.setOnClickListener(v -> {
+            Intent intent = new Intent(Home.this, TasksActivity.class);
             startActivity(intent);
         });
 
-        cardMathSolver.setOnClickListener(v -> {
-            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
-            startActivity(intent);
-        });
+    }
 
-        cardCodeGenerator.setOnClickListener(v -> {
-            Intent intent = new Intent(Home.this, BMICalculateActivity.class);
-            startActivity(intent);
-        });    }
+    private void initViews() {
+        tvDate = findViewById(R.id.tvDate);
+        bmiCV = findViewById(R.id.cardBmi);
+        seeAllFoodTV = findViewById(R.id.seeAllFoodTV);
+        seeAllTaskTV = findViewById(R.id.seeAllTaskTV);
+    }
+
+    private void setCurrentDate() {
+        if (tvDate == null) return;
+
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault());
+            tvDate.setText(dateFormat.format(new Date()));
+        } catch (Exception e) {
+            tvDate.setText("Date unavailable");
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_layout,menu);
-        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_layout, menu);
+        return true; // Return true to show the menu
     }
 
-    public boolean onOptionsItemSelected(MenuItem item){
-
-        if(item.getItemId()==R.id.logoutid){
-            FirebaseAuth.getInstance().signOut();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.logoutid) {
+            mAuth.signOut();
             finish();
-            Intent intent=new Intent(getApplicationContext(),MainActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, MainActivity.class));
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 
 }

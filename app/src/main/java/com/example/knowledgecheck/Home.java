@@ -24,7 +24,7 @@ import java.util.Locale;
 public class Home extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CardView bmiCV, funCV;
-    private TextView tvDate, seeAllFoodTV, seeAllTaskTV;
+    private TextView tvDate, seeAllFoodTV, seeAllTaskTV,seeAllPrescriptions;
     private ImageView ivProfile;
 
     @Override
@@ -49,6 +49,10 @@ public class Home extends AppCompatActivity {
 
         seeAllFoodTV.setOnClickListener(v -> {
             Intent intent = new Intent(Home.this, FoodScheduleActivity.class);
+            startActivity(intent);
+        });
+        seeAllPrescriptions.setOnClickListener(v -> {
+            Intent intent = new Intent(Home.this, PrescriptionsScheaduleActivity.class);
             startActivity(intent);
         });
 
@@ -106,6 +110,7 @@ public class Home extends AppCompatActivity {
         seeAllTaskTV = findViewById(R.id.seeAllTaskTV);
         funCV = findViewById(R.id.funCV);
         ivProfile = findViewById(R.id.ivProfile);
+        seeAllPrescriptions=findViewById(R.id.tvSeeAllPrescriptions);
     }
 
     private void setCurrentDate() {

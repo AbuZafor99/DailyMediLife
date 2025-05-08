@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Meal"
+        android:text="Add New Prescriptions"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
@@ -22,7 +22,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Meal Time"
+        android:text="Medicine Time"
         android:textSize="14sp"
         android:layout_marginBottom="4dp"/>
 
@@ -50,7 +50,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Meal Details"
+        android:text="Prescriptions Details"
         android:textSize="14sp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="4dp"/>
@@ -59,7 +59,7 @@
         android:id="@+id/etMealDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter meal details"
+        android:hint="Enter prescriptions details"
         android:inputType="textCapSentences"
         android:maxLines="3"/>
 

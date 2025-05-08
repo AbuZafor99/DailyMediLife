@@ -47,10 +47,24 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="4dp"/>
 
-    <EditText
-        android:id="@+id/etDueTime"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="e.g., 08:00 AM"
-        android:inputType="textCapWords"/>
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etDueTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Select time"
+            android:inputType="none"
+            android:focusable="false"/>
+
+        <Button
+            android:id="@+id/btnTimePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick Time"/>
+    </LinearLayout>
 </LinearLayout>

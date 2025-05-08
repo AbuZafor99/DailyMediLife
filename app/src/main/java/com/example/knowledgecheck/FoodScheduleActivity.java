@@ -1,6 +1,7 @@
 package com.example.knowledgecheck;
 
-import android.app.AlertDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,8 +10,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
@@ -80,6 +84,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
         // Initialize dialog views
         Spinner spinnerMealType = dialogView.findViewById(R.id.spinnerMealType);
         EditText etMealTime = dialogView.findViewById(R.id.etMealTime);
+        Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
         EditText etMealDetails = dialogView.findViewById(R.id.etMealDetails);
         CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
         Button btnSaveMeal = dialogView.findViewById(R.id.btnSaveMeal);
@@ -92,6 +97,43 @@ public class FoodScheduleActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
 
+        // Time picker click listener
+        btnTimePicker.setOnClickListener(v -> {
+            // Get current time
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+
+            // Create time picker dialog
+            TimePickerDialog timePickerDialog = new TimePickerDialog(
+                    this,
+                    (view, selectedHour, selectedMinute) -> {
+                        // Format the time
+                        String amPm;
+                        if (selectedHour < 12) {
+                            amPm = "AM";
+                            if (selectedHour == 0) {
+                                selectedHour = 12;
+                            }
+                        } else {
+                            amPm = "PM";
+                            if (selectedHour > 12) {
+                                selectedHour -= 12;
+                            }
+                        }
+
+                        String formattedTime = String.format(Locale.getDefault(),
+                                "%02d:%02d %s", selectedHour, selectedMinute, amPm);
+                        etMealTime.setText(formattedTime);
+                    },
+                    hour,
+                    minute,
+                    false // 24-hour format set to false for AM/PM
+            );
+
+            timePickerDialog.show();
+        });
+
         btnSaveMeal.setOnClickListener(v -> {
             String mealType = spinnerMealType.getSelectedItem().toString();
             String mealTime = etMealTime.getText().toString().trim();
@@ -99,14 +141,13 @@ public class FoodScheduleActivity extends AppCompatActivity {
             boolean hasAlarm = cbHasAlarm.isChecked();
 
             // Validate inputs
-            if (mealTime.isEmpty() || mealDetails.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            if (mealTime.isEmpty()) {
+                Toast.makeText(this, "Please select a meal time", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Validate time format
-            if (!isValidTimeFormat(mealTime)) {
-                Toast.makeText(this, "Please enter time in correct format (e.g., 08:00 AM)", Toast.LENGTH_SHORT).show();
+            if (mealDetails.isEmpty()) {
+                Toast.makeText(this, "Please enter meal details", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -122,16 +163,6 @@ public class FoodScheduleActivity extends AppCompatActivity {
         });
 
         dialog.show();
-    }
-
-    private boolean isValidTimeFormat(String time) {
-        SimpleDateFormat format = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-        try {
-            format.parse(time);
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
     }
 
     private int getMealIcon(String mealType) {

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightBlue"
+    tools:context=".PrescriptionsScheaduleActivity">
+
+    <!-- Header Section -->
+    <RelativeLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Prescriptions Schedule"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <!-- RecyclerView for meals -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mealRV"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/addMealBTN"
+        android:layout_below="@id/headerLayout"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"/>
+
+    <!-- Fixed Add Button at Bottom -->
+    <Button
+        android:id="@+id/addMealBTN"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/darkBlue"
+        android:elevation="4dp"
+        android:text="Add New Prescriptions"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+</RelativeLayout>

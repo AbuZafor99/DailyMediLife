@@ -12,4 +12,11 @@
         <item>Dinner</item>
         <item>Snack</item>
     </string-array>
+    <string-array name="medication_types">
+        <item>Antibiotic</item>
+        <item>Painkiller</item>
+        <item>Vitamins</item>
+        <item>Antihistamine</item>
+        <item>Other</item>
+    </string-array>
 </resources>

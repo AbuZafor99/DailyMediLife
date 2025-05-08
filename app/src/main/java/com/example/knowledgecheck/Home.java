@@ -2,8 +2,10 @@ package com.example.knowledgecheck;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -23,7 +25,7 @@ public class Home extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CardView bmiCV, funCV;
     private TextView tvDate, seeAllFoodTV, seeAllTaskTV;
-
+    private ImageView ivProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +45,6 @@ public class Home extends AppCompatActivity {
 
         bmiCV.setOnClickListener(v -> {
             startActivity(new Intent(Home.this, BMICalculateActivity.class));
-
         });
 
         seeAllFoodTV.setOnClickListener(v -> {
@@ -60,6 +61,42 @@ public class Home extends AppCompatActivity {
             startActivity(new Intent(Home.this, TicTacToeActivity.class));
         });
 
+        // Set click listener for profile image
+        ivProfile.setOnClickListener(v -> showProfilePopupMenu(v));
+    }
+
+    private void showProfilePopupMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.menu_layout, popupMenu.getMenu());
+
+        // Force show icons if needed (optional)
+        try {
+            java.lang.reflect.Field[] fields = popupMenu.getClass().getDeclaredFields();
+            for (java.lang.reflect.Field field : fields) {
+                if ("mPopup".equals(field.getName())) {
+                    field.setAccessible(true);
+                    Object menuPopupHelper = field.get(popupMenu);
+                    Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+                    java.lang.reflect.Method setForceShowIcon = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+                    setForceShowIcon.invoke(menuPopupHelper, true);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.logoutid) {
+                mAuth.signOut();
+                finish();
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+            }
+            return false;
+        });
+
+        popupMenu.show();
     }
 
     private void initViews() {
@@ -68,6 +105,7 @@ public class Home extends AppCompatActivity {
         seeAllFoodTV = findViewById(R.id.seeAllFoodTV);
         seeAllTaskTV = findViewById(R.id.seeAllTaskTV);
         funCV = findViewById(R.id.funCV);
+        ivProfile = findViewById(R.id.ivProfile);
     }
 
     private void setCurrentDate() {
@@ -80,24 +118,4 @@ public class Home extends AppCompatActivity {
             tvDate.setText("Date unavailable");
         }
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_layout, menu);
-        return true; // Return true to show the menu
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.logoutid) {
-            mAuth.signOut();
-            finish();
-            startActivity(new Intent(this, MainActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-
 }

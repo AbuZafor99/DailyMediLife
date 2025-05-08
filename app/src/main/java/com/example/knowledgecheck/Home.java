@@ -35,15 +35,19 @@ import java.util.Locale;
 public class Home extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CardView bmiCV, funCV;
-    private TextView tvDate, seeAllFoodTV, seeAllTaskTV, seeAllPrescriptions;
+    private TextView tvDate, seeAllFoodTV, seeAllTaskTV, seeAllPrescriptions, tvBmiValue;
     private Button addPrescriptions, addFood;
     private ImageView ivProfile;
+    private BMIDatabaseHelper bmiDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
+
+        // Initialize database helper
+        bmiDbHelper = new BMIDatabaseHelper(this);
 
         // Handle edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -54,6 +58,7 @@ public class Home extends AppCompatActivity {
 
         initViews();
         setCurrentDate();
+        loadLatestBMI(); // Load BMI value from database
 
         bmiCV.setOnClickListener(v -> {
             startActivity(new Intent(Home.this, BMICalculateActivity.class));
@@ -90,6 +95,11 @@ public class Home extends AppCompatActivity {
 
         // Set click listener for profile image
         ivProfile.setOnClickListener(v -> showProfilePopupMenu(v));
+    }
+
+    private void loadLatestBMI() {
+        String latestBMI = bmiDbHelper.getLatestBMIValue();
+        tvBmiValue.setText(latestBMI);
     }
 
     private void showAddPrescriptionDialog() {
@@ -292,6 +302,7 @@ public class Home extends AppCompatActivity {
         seeAllPrescriptions = findViewById(R.id.tvSeeAllPrescriptions);
         addFood = findViewById(R.id.btnAddFood);
         addPrescriptions = findViewById(R.id.btnAddPrescription);
+        tvBmiValue = findViewById(R.id.tvBmiValue); // Initialize BMI value TextView
     }
 
     private void setCurrentDate() {
@@ -303,5 +314,18 @@ public class Home extends AppCompatActivity {
         } catch (Exception e) {
             tvDate.setText("Date unavailable");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh BMI value when returning to the activity
+        loadLatestBMI();
+    }
+
+    @Override
+    protected void onDestroy() {
+        bmiDbHelper.close();
+        super.onDestroy();
     }
 }

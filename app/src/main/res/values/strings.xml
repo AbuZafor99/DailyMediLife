@@ -6,4 +6,10 @@
     <string name="see_all">See All</string>
     <string name="diet_task">Food &amp; Task</string>
     <string name="add_prescription">Add Prescription</string>
+    <string-array name="meal_types">
+        <item>Breakfast</item>
+        <item>Lunch</item>
+        <item>Dinner</item>
+        <item>Snack</item>
+    </string-array>
 </resources>

@@ -19,4 +19,5 @@
         <item>Antihistamine</item>
         <item>Other</item>
     </string-array>
+    <string name="blood_pressure_hint">Enter BP</string>
 </resources>

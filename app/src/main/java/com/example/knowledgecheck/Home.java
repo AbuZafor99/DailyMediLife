@@ -34,11 +34,12 @@ import java.util.Locale;
 
 public class Home extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private CardView bmiCV, funCV;
-    private TextView tvDate, seeAllFoodTV, seeAllTaskTV, seeAllPrescriptions, tvBmiValue;
+    private CardView bmiCV, waterIntakeCV, funCV;
+    private TextView tvDate, seeAllFoodTV, seeAllTaskTV, seeAllPrescriptions, tvBmiValue, tvWaterValue;
     private Button addPrescriptions, addFood;
     private ImageView ivProfile;
     private BMIDatabaseHelper bmiDbHelper;
+    private BloodPressureDatabaseHelper bpDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +47,9 @@ public class Home extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
-        // Initialize database helper
+        // Initialize database helpers
         bmiDbHelper = new BMIDatabaseHelper(this);
+        bpDbHelper = new BloodPressureDatabaseHelper(this);
 
         // Handle edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -59,9 +61,14 @@ public class Home extends AppCompatActivity {
         initViews();
         setCurrentDate();
         loadLatestBMI(); // Load BMI value from database
+        loadLatestBP();  // Load blood pressure value from database
 
         bmiCV.setOnClickListener(v -> {
             startActivity(new Intent(Home.this, BMICalculateActivity.class));
+        });
+
+        waterIntakeCV.setOnClickListener(v -> {
+            showBPInputDialog();
         });
 
         seeAllFoodTV.setOnClickListener(v -> {
@@ -100,6 +107,47 @@ public class Home extends AppCompatActivity {
     private void loadLatestBMI() {
         String latestBMI = bmiDbHelper.getLatestBMIValue();
         tvBmiValue.setText(latestBMI);
+    }
+
+    private void loadLatestBP() {
+        String latestBP = bpDbHelper.getLatestBPRecord();
+        tvWaterValue.setText(latestBP);
+    }
+
+    private void showBPInputDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_bp_input, null);
+        builder.setView(dialogView);
+
+        EditText etSystolic = dialogView.findViewById(R.id.etSystolic);
+        EditText etDiastolic = dialogView.findViewById(R.id.etDiastolic);
+        Button btnSave = dialogView.findViewById(R.id.btnSaveBP);
+
+        AlertDialog dialog = builder.create();
+
+        btnSave.setOnClickListener(v -> {
+            try {
+                int systolic = Integer.parseInt(etSystolic.getText().toString());
+                int diastolic = Integer.parseInt(etDiastolic.getText().toString());
+
+                if (systolic <= 0 || diastolic <= 0) {
+                    Toast.makeText(this, "Please enter valid values", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (bpDbHelper.saveBPRecord(systolic, diastolic)) {
+                    loadLatestBP();
+                    Toast.makeText(this, "Blood pressure saved", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                } else {
+                    Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show();
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Please enter numeric values", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
     }
 
     private void showAddPrescriptionDialog() {
@@ -295,6 +343,7 @@ public class Home extends AppCompatActivity {
     private void initViews() {
         tvDate = findViewById(R.id.tvDate);
         bmiCV = findViewById(R.id.cardBmi);
+        waterIntakeCV = findViewById(R.id.cardWaterIntake);
         seeAllFoodTV = findViewById(R.id.seeAllFoodTV);
         seeAllTaskTV = findViewById(R.id.seeAllTaskTV);
         funCV = findViewById(R.id.funCV);
@@ -302,7 +351,8 @@ public class Home extends AppCompatActivity {
         seeAllPrescriptions = findViewById(R.id.tvSeeAllPrescriptions);
         addFood = findViewById(R.id.btnAddFood);
         addPrescriptions = findViewById(R.id.btnAddPrescription);
-        tvBmiValue = findViewById(R.id.tvBmiValue); // Initialize BMI value TextView
+        tvBmiValue = findViewById(R.id.tvBmiValue);
+        tvWaterValue = findViewById(R.id.tvWaterValue);
     }
 
     private void setCurrentDate() {
@@ -319,13 +369,15 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh BMI value when returning to the activity
+        // Refresh values when returning to the activity
         loadLatestBMI();
+        loadLatestBP();
     }
 
     @Override
     protected void onDestroy() {
         bmiDbHelper.close();
+        bpDbHelper.close();
         super.onDestroy();
     }
 }

@@ -18,6 +18,7 @@
 
         <activity android:name=".FoodScheduleActivity" android:exported="false" />
         <activity android:name=".TasksActivity" android:exported="false" />
+        <activity android:name=".TicTacToeActivity" android:exported="false" />
         <activity android:name=".BMICalculateActivity" android:exported="false" />
         <activity android:name=".Profile" android:exported="false" />
         <activity android:name=".Home" android:exported="false" />

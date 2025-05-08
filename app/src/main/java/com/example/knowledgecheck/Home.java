@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,7 +21,7 @@ import java.util.Locale;
 
 public class Home extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private CardView bmiCV;
+    private CardView bmiCV, funCV;
     private TextView tvDate, seeAllFoodTV, seeAllTaskTV;
 
 
@@ -57,6 +56,10 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         });
 
+        funCV.setOnClickListener(v -> {
+            startActivity(new Intent(Home.this, TicTacToeActivity.class));
+        });
+
     }
 
     private void initViews() {
@@ -64,6 +67,7 @@ public class Home extends AppCompatActivity {
         bmiCV = findViewById(R.id.cardBmi);
         seeAllFoodTV = findViewById(R.id.seeAllFoodTV);
         seeAllTaskTV = findViewById(R.id.seeAllTaskTV);
+        funCV = findViewById(R.id.funCV);
     }
 
     private void setCurrentDate() {

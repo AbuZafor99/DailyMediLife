@@ -73,23 +73,20 @@ public class Home extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        // Initialize all views
+        
         initViews();
 
-        // Set current date
+        setUserGreeting();
         setCurrentDate();
 
-        // Load data from databases
+
         loadLatestBMI();
         loadLatestBP();
         loadPrescriptionData();
         loadNextMeal();
 
-        // Fetch health tip
         fetchHealthTip();
 
-        // Setup all click listeners
         setupClickListeners();
     }
 
@@ -160,6 +157,30 @@ public class Home extends AppCompatActivity {
 
         // Health Tips Card - Refresh on click
         cardHealthTips.setOnClickListener(v -> fetchHealthTip());
+    }
+
+    private String getTimeBasedGreeting() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (hour >= 5 && hour < 12) {
+            return "Good Morning";
+        } else if (hour >= 12 && hour < 17) {
+            return "Good Afternoon";
+        } else if (hour >= 17 && hour < 21) {
+            return "Good Evening";
+        } else {
+            return "Good Night";
+        }
+    }
+
+    private void setUserGreeting() {
+        TextView tvGreeting = findViewById(R.id.tvGreeting);
+
+        String userName = "Shahriar";
+
+        String greeting = getTimeBasedGreeting() + ", " + userName + "!";
+        tvGreeting.setText(greeting);
     }
 
     private void fetchHealthTip() {

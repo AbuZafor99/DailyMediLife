@@ -23,18 +23,52 @@ public class Meal {
     }
 
     // Getters
-    public long getId() { return id; }
-    public String getMealType() { return mealType; }
-    public String getTime() { return time; }
-    public String getDescription() { return description; }
-    public boolean isAlarmOn() { return alarmOn; }
-    public int getIconRes() { return iconRes; }
+    public long getId() {
+        return id;
+    }
+
+    public String getMealType() {
+        return mealType;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isAlarmOn() {
+        return alarmOn;
+    }
+
+    public int getIconRes() {
+        return iconRes;
+    }
 
     // Setters
-    public void setId(long id) { this.id = id; }
-    public void setMealType(String mealType) { this.mealType = mealType; }
-    public void setTime(String time) { this.time = time; }
-    public void setDescription(String description) { this.description = description; }
-    public void setAlarmOn(boolean alarmOn) { this.alarmOn = alarmOn; }
-    public void setIconRes(int iconRes) { this.iconRes = iconRes; }
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setMealType(String mealType) {
+        this.mealType = mealType;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setAlarmOn(boolean alarmOn) {
+        this.alarmOn = alarmOn;
+    }
+
+    public void setIconRes(int iconRes) {
+        this.iconRes = iconRes;
+    }
 }

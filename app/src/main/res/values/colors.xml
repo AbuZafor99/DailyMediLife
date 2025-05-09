@@ -24,15 +24,8 @@
 
 
     <color name="game_cell_bg">#FFFFFF</color>
-<<<<<<< Updated upstream
     <color name="x_color">#0066CC</color>  <!-- Your dark blue -->
     <color name="o_color">#008080</color>  <!-- Your teal -->
     <color name="game_border">#B3E0FF</color>  <!-- Lighter blue -->
-=======
-    <color name="x_color">#0066CC</color>
-    <color name="o_color">#008080</color>
-    <color name="game_border">#B3E0FF</color>
 
-    
->>>>>>> Stashed changes
 </resources>

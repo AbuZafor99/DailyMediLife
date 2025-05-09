@@ -72,7 +72,6 @@ public class BMIDatabaseHelper extends SQLiteOpenHelper {
                     cursor.getFloat(1), // weight
                     cursor.getFloat(2), // bmi
             };
-            // Category is a string, not included in float array
         }
         cursor.close();
         db.close();

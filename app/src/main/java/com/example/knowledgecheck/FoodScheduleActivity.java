@@ -278,6 +278,24 @@ public class FoodScheduleActivity extends AppCompatActivity implements MealAdapt
 
         dialog.show();
     }
+    public void onDeleteClick(Meal meal) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Meal")
+                .setMessage("Are you sure you want to delete this meal?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+
+                    dbHelper.deleteMeal(meal.getId());
+
+
+                    int position = mealList.indexOf(meal);
+                    mealList.remove(position);
+                    adapter.notifyItemRemoved(position);
+
+                    Toast.makeText(this, "Meal deleted", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
 
     private int getIndex(Spinner spinner, String value) {
         for (int i = 0; i < spinner.getCount(); i++) {

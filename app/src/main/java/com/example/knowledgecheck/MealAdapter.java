@@ -12,14 +12,14 @@ import java.util.List;
 
 public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder> {
     private final List<Meal> mealList;
-    private OnMealClickListener listener = null;
+    private final OnMealClickListener listener;
 
     public interface OnMealClickListener {
         void onMealClick(Meal meal);
         void onAlarmToggle(Meal meal, boolean isOn);
     }
 
-    public MealAdapter(List<Meal> mealList) {
+    public MealAdapter(List<Meal> mealList, OnMealClickListener listener) {
         this.mealList = mealList;
         this.listener = listener;
     }
@@ -29,7 +29,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
     public MealViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.food_list, parent, false);
-        return new MealViewHolder(view);
+        return new MealViewHolder(view, listener, mealList);
     }
 
     @Override
@@ -43,14 +43,18 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         return mealList.size();
     }
 
-    public class MealViewHolder extends RecyclerView.ViewHolder {
+    public static class MealViewHolder extends RecyclerView.ViewHolder {
         private final ImageView ivMealIcon;
         private final TextView tvMealType;
         private final TextView tvMealDetails;
         private final ImageButton btnAlarm;
+        private final OnMealClickListener listener;
+        private final List<Meal> mealList;
 
-        public MealViewHolder(@NonNull View itemView) {
+        public MealViewHolder(@NonNull View itemView, OnMealClickListener listener, List<Meal> mealList) {
             super(itemView);
+            this.listener = listener;
+            this.mealList = mealList;
             ivMealIcon = itemView.findViewById(R.id.ivMealIcon);
             tvMealType = itemView.findViewById(R.id.tvMealType);
             tvMealDetails = itemView.findViewById(R.id.tvMealDetails);
@@ -58,7 +62,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
+                if (position != RecyclerView.NO_POSITION && listener != null) {
                     listener.onMealClick(mealList.get(position));
                 }
             });
@@ -74,12 +78,14 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
                     : R.drawable.alarm_off_icon);
 
             btnAlarm.setOnClickListener(v -> {
-                boolean newAlarmState = !meal.isAlarmOn();
-                meal.setAlarmOn(newAlarmState);
-                btnAlarm.setImageResource(newAlarmState
-                        ? R.drawable.alarm_on_icon
-                        : R.drawable.alarm_off_icon);
-                listener.onAlarmToggle(meal, newAlarmState);
+                if (listener != null) {
+                    boolean newAlarmState = !meal.isAlarmOn();
+                    meal.setAlarmOn(newAlarmState);
+                    btnAlarm.setImageResource(newAlarmState
+                            ? R.drawable.alarm_on_icon
+                            : R.drawable.alarm_off_icon);
+                    listener.onAlarmToggle(meal, newAlarmState);
+                }
             });
         }
     }

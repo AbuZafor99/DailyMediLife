@@ -38,7 +38,7 @@ public class Home extends AppCompatActivity {
     // Views
     private CardView bmiCV, waterIntakeCV, funCV;
     private TextView tvDate, seeAllFoodTV, seeAllTaskTV, seeAllPrescriptions, tvBmiValue, tvWaterValue;
-    private TextView tvNextMed, tvMedCount;
+    private TextView tvNextMeal, tvNextMed, tvMedCount;
     private Button addPrescriptions, addFood;
     private ImageView ivProfile;
 
@@ -46,6 +46,7 @@ public class Home extends AppCompatActivity {
     private BMIDatabaseHelper bmiDbHelper;
     private BloodPressureDatabaseHelper bpDbHelper;
     private PrescriptionDatabaseHelper prescriptionDbHelper;
+    private MealDatabaseHelper mealDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ public class Home extends AppCompatActivity {
         bmiDbHelper = new BMIDatabaseHelper(this);
         bpDbHelper = new BloodPressureDatabaseHelper(this);
         prescriptionDbHelper = new PrescriptionDatabaseHelper(this);
+        mealDbHelper = new MealDatabaseHelper(this);
 
         // Handle edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -75,6 +77,7 @@ public class Home extends AppCompatActivity {
         loadLatestBMI();
         loadLatestBP();
         loadPrescriptionData();
+        loadNextMeal();
 
         // Setup all click listeners
         setupClickListeners();
@@ -95,6 +98,7 @@ public class Home extends AppCompatActivity {
         tvWaterValue = findViewById(R.id.tvWaterValue);
         tvNextMed = findViewById(R.id.tvNextMed);
         tvMedCount = findViewById(R.id.tvMedCount);
+        tvNextMeal = findViewById(R.id.tvNextMeal); // Make sure this ID exists in your XML
     }
 
     private void setupClickListeners() {
@@ -157,6 +161,16 @@ public class Home extends AppCompatActivity {
         tvMedCount.setText(prescriptionCount + " active prescriptions");
     }
 
+    private void loadNextMeal() {
+        Meal nextMeal = mealDbHelper.getNextMeal();
+
+        if (nextMeal != null) {
+            tvNextMeal.setText(nextMeal.getMealType() + " - " + nextMeal.getTime());
+        } else {
+            tvNextMeal.setText("No upcoming meals");
+        }
+    }
+
     private void showAddPrescriptionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_prescriptions, null);
@@ -197,7 +211,7 @@ public class Home extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showTimePicker(EditText etMedicationTime) {
+    private void showTimePicker(EditText timeEditText) {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
@@ -220,7 +234,7 @@ public class Home extends AppCompatActivity {
 
                     String formattedTime = String.format(Locale.getDefault(),
                             "%02d:%02d %s", selectedHour, selectedMinute, amPm);
-                    etMedicationTime.setText(formattedTime);
+                    timeEditText.setText(formattedTime);
                 },
                 hour,
                 minute,
@@ -265,14 +279,82 @@ public class Home extends AppCompatActivity {
 
     private int getMedicationIcon(String medicationType) {
         switch (medicationType.toLowerCase()) {
-            case "antibiotic":
-                return R.drawable.antibiotic_icon;
-            case "painkiller":
-                return R.drawable.antibiotic_icon;
-            case "vitamins":
-                return R.drawable.antibiotic_icon;
-            default:
-                return R.drawable.antibiotic_icon;
+            case "antibiotic": return R.drawable.antibiotic_icon;
+            case "painkiller": return R.drawable.antibiotic_icon;
+            case "vitamins": return R.drawable.antibiotic_icon;
+            default: return R.drawable.antibiotic_icon;
+        }
+    }
+
+    private void showAddFoodDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_meal, null);
+        builder.setView(dialogView);
+
+        // Initialize dialog views
+        Spinner spinnerMealType = dialogView.findViewById(R.id.spinnerMealType);
+        EditText etMealTime = dialogView.findViewById(R.id.etMealTime);
+        Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
+        EditText etMealDetails = dialogView.findViewById(R.id.etMealDetails);
+        CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
+        Button btnSaveMeal = dialogView.findViewById(R.id.btnSaveMeal);
+
+        // Setup spinner with meal types
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.meal_types, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMealType.setAdapter(spinnerAdapter);
+
+        AlertDialog dialog = builder.create();
+
+        // Time picker click listener
+        btnTimePicker.setOnClickListener(v -> {
+            showTimePicker(etMealTime);
+        });
+
+        btnSaveMeal.setOnClickListener(v -> {
+            String mealType = spinnerMealType.getSelectedItem().toString();
+            String mealTime = etMealTime.getText().toString().trim();
+            String mealDetails = etMealDetails.getText().toString().trim();
+            boolean hasAlarm = cbHasAlarm.isChecked();
+
+            // Validate inputs
+            if (mealTime.isEmpty()) {
+                Toast.makeText(this, "Please select meal time", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (mealDetails.isEmpty()) {
+                Toast.makeText(this, "Please enter meal details", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Get appropriate icon based on meal type
+            int iconId = getMealIcon(mealType);
+
+            // Create and add new meal to database
+            Meal newMeal = new Meal(mealType, mealTime, mealDetails, hasAlarm, iconId);
+            long id = mealDbHelper.addMeal(newMeal);
+
+            if (id != -1) {
+                Toast.makeText(this, "Meal added", Toast.LENGTH_SHORT).show();
+                loadNextMeal(); // Refresh the next meal display
+                dialog.dismiss();
+            } else {
+                Toast.makeText(this, "Failed to add meal", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private int getMealIcon(String mealType) {
+        switch (mealType.toLowerCase()) {
+            case "breakfast": return R.drawable.breakfast_icon;
+            case "lunch": return R.drawable.lunch_icon;
+            case "dinner": return R.drawable.dinner_icon;
+            case "snack": return R.drawable.snack_icon;
+            default: return R.drawable.meal_icon;
         }
     }
 
@@ -317,80 +399,6 @@ public class Home extends AppCompatActivity {
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Please enter numeric values", Toast.LENGTH_SHORT).show();
             }
-        });
-
-        dialog.show();
-    }
-
-    private void showAddFoodDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_meal, null);
-        builder.setView(dialogView);
-
-        Spinner spinnerMealType = dialogView.findViewById(R.id.spinnerMealType);
-        EditText etMealTime = dialogView.findViewById(R.id.etMealTime);
-        Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
-        EditText etMealDetails = dialogView.findViewById(R.id.etMealDetails);
-        CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
-        Button btnSaveMeal = dialogView.findViewById(R.id.btnSaveMeal);
-
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.meal_types, android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerMealType.setAdapter(spinnerAdapter);
-
-        AlertDialog dialog = builder.create();
-
-        btnTimePicker.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-
-            TimePickerDialog timePickerDialog = new TimePickerDialog(
-                    this,
-                    (view, selectedHour, selectedMinute) -> {
-                        String amPm;
-                        if (selectedHour < 12) {
-                            amPm = "AM";
-                            if (selectedHour == 0) {
-                                selectedHour = 12;
-                            }
-                        } else {
-                            amPm = "PM";
-                            if (selectedHour > 12) {
-                                selectedHour -= 12;
-                            }
-                        }
-
-                        String formattedTime = String.format(Locale.getDefault(),
-                                "%02d:%02d %s", selectedHour, selectedMinute, amPm);
-                        etMealTime.setText(formattedTime);
-                    },
-                    hour,
-                    minute,
-                    false
-            );
-            timePickerDialog.show();
-        });
-
-        btnSaveMeal.setOnClickListener(v -> {
-            String mealType = spinnerMealType.getSelectedItem().toString();
-            String mealTime = etMealTime.getText().toString().trim();
-            String mealDetails = etMealDetails.getText().toString().trim();
-            boolean hasAlarm = cbHasAlarm.isChecked();
-
-            if (mealTime.isEmpty()) {
-                Toast.makeText(this, "Please select meal time", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (mealDetails.isEmpty()) {
-                Toast.makeText(this, "Please enter meal details", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Toast.makeText(this, "Meal added", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
         });
 
         dialog.show();
@@ -448,6 +456,7 @@ public class Home extends AppCompatActivity {
         loadLatestBMI();
         loadLatestBP();
         loadPrescriptionData();
+        loadNextMeal();
     }
 
     @Override
@@ -455,6 +464,7 @@ public class Home extends AppCompatActivity {
         bmiDbHelper.close();
         bpDbHelper.close();
         prescriptionDbHelper.close();
+        mealDbHelper.close();
         super.onDestroy();
     }
 }

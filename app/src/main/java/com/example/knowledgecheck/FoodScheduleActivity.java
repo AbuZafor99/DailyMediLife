@@ -1,59 +1,66 @@
 package com.example.knowledgecheck;
 
+import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TimePicker;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
-public class FoodScheduleActivity extends AppCompatActivity {
+public class FoodScheduleActivity extends AppCompatActivity implements MealAdapter.OnMealClickListener {
 
     private RecyclerView mealRecyclerView;
     private Button btnAddMeal;
-    private ArrayList<Meal> mealList = new ArrayList<>();
+    private List<Meal> mealList = new ArrayList<>();
     private MealAdapter adapter;
+    private MealDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_food_schedule);
 
-<<<<<<< Updated upstream
-        // Initialize views
-=======
+        // Initialize database helper
         dbHelper = new MealDatabaseHelper(this);
 
->>>>>>> Stashed changes
+        // Initialize views
         mealRecyclerView = findViewById(R.id.mealRV);
         btnAddMeal = findViewById(R.id.addMealBTN);
 
+        // Setup RecyclerView
         mealRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MealAdapter(mealList);
+        adapter = new MealAdapter(mealList, this);
         mealRecyclerView.setAdapter(adapter);
 
-<<<<<<< Updated upstream
-        // Load sample data
-        loadSampleMeals();
-
-        // Set click listeners
-=======
+        // Load meals from database
         loadMealsFromDatabase();
 
->>>>>>> Stashed changes
+        // Set click listener for add button
         btnAddMeal.setOnClickListener(v -> showAddMealDialog());
     }
 
-    private void loadSampleMeals() {
-        mealList.add(new Meal("Breakfast", "08:00 AM", "Oatmeal with fruits", false, R.drawable.breakfast_icon));
-        mealList.add(new Meal("Lunch", "01:00 PM", "Grilled chicken with rice", false, R.drawable.lunch_icon));
-        mealList.add(new Meal("Dinner", "07:30 PM", "Vegetable salad with fish", true, R.drawable.dinner_icon));
-
+    private void loadMealsFromDatabase() {
+        mealList.clear();
+        mealList.addAll(dbHelper.getAllMeals());
         sortMealsByTime();
     }
 
@@ -72,16 +79,11 @@ public class FoodScheduleActivity extends AppCompatActivity {
     }
 
     private void showAddMealDialog() {
-<<<<<<< Updated upstream
-        // Implement your dialog to add new meals
-        // After adding:
-        // mealList.add(newMeal);
-        // sortMealsByTime();
-=======
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_meal, null);
         builder.setView(dialogView);
 
+        // Initialize dialog views
         Spinner spinnerMealType = dialogView.findViewById(R.id.spinnerMealType);
         EditText etMealTime = dialogView.findViewById(R.id.etMealTime);
         Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
@@ -89,6 +91,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
         CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
         Button btnSaveMeal = dialogView.findViewById(R.id.btnSaveMeal);
 
+        // Setup spinner with meal types
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.meal_types, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -96,6 +99,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
 
+        // Time picker click listener
         btnTimePicker.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -153,8 +157,10 @@ public class FoodScheduleActivity extends AppCompatActivity {
             long id = dbHelper.addMeal(newMeal);
 
             if (id != -1) {
+                // Set the ID returned from database
                 newMeal.setId(id);
 
+                // Add to the list and refresh
                 mealList.add(newMeal);
                 sortMealsByTime();
 
@@ -170,6 +176,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
 
     @Override
     public void onMealClick(Meal meal) {
+        // Handle meal click (you can implement edit functionality here)
         showEditMealDialog(meal);
     }
 
@@ -178,6 +185,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_meal, null);
         builder.setView(dialogView);
 
+        // Initialize dialog views
         Spinner spinnerMealType = dialogView.findViewById(R.id.spinnerMealType);
         EditText etMealTime = dialogView.findViewById(R.id.etMealTime);
         Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
@@ -185,11 +193,13 @@ public class FoodScheduleActivity extends AppCompatActivity {
         CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
         Button btnSaveMeal = dialogView.findViewById(R.id.btnSaveMeal);
 
+        // Set initial values
         spinnerMealType.setSelection(getIndex(spinnerMealType, meal.getMealType()));
         etMealTime.setText(meal.getTime());
         etMealDetails.setText(meal.getDescription());
         cbHasAlarm.setChecked(meal.isAlarmOn());
 
+        // Setup spinner with meal types
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.meal_types, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -197,6 +207,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
 
+        // Time picker click listener
         btnTimePicker.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -235,6 +246,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
             String mealDetails = etMealDetails.getText().toString().trim();
             boolean hasAlarm = cbHasAlarm.isChecked();
 
+            // Validate inputs
             if (mealTime.isEmpty()) {
                 Toast.makeText(this, "Please select meal time", Toast.LENGTH_SHORT).show();
                 return;
@@ -245,12 +257,14 @@ public class FoodScheduleActivity extends AppCompatActivity {
                 return;
             }
 
+            // Update the meal
             meal.setMealType(mealType);
             meal.setTime(mealTime);
             meal.setDescription(mealDetails);
             meal.setAlarmOn(hasAlarm);
             meal.setIconRes(getMealIcon(mealType));
 
+            // Update in database
             int rowsAffected = dbHelper.updateMeal(meal);
 
             if (rowsAffected > 0) {
@@ -264,7 +278,6 @@ public class FoodScheduleActivity extends AppCompatActivity {
 
         dialog.show();
     }
-
     public void onDeleteClick(Meal meal) {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Meal")
@@ -295,6 +308,7 @@ public class FoodScheduleActivity extends AppCompatActivity {
 
     @Override
     public void onAlarmToggle(Meal meal, boolean isOn) {
+        // Update alarm status in database
         meal.setAlarmOn(isOn);
         dbHelper.updateMeal(meal);
     }
@@ -313,6 +327,5 @@ public class FoodScheduleActivity extends AppCompatActivity {
     protected void onDestroy() {
         dbHelper.close();
         super.onDestroy();
->>>>>>> Stashed changes
     }
 }

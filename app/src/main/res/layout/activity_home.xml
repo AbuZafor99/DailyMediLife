@@ -77,7 +77,7 @@
                     android:layout_marginTop="4dp"
                     android:text="Hello, Shahriar!"
                     android:textColor="@color/black"
-                    android:textSize="20sp"
+                    android:textSize="25sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </RelativeLayout>
@@ -171,7 +171,7 @@
             android:layout_marginBottom="8dp"
             android:text="Quick Access"
             android:textColor="#1E3A8A"
-            android:textSize="16sp"
+            android:textSize="21sp"
             android:textStyle="bold" />
 
         <!-- Prescriptions Card -->

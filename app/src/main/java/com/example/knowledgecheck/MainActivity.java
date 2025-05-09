@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        //-------------------initialization-------------
         email=findViewById(R.id.emailET);
         pass=findViewById(R.id.passET);
         loginButton=findViewById(R.id.logintBT);
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         gosignup=findViewById(R.id.gosignUpTV);
         mAuth=FirebaseAuth.getInstance();
 
-        //---------------login button activity handle on click-------------
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //------------------redirect to signup page on click ---------------
+
         gosignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

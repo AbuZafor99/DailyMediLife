@@ -18,7 +18,6 @@ public class BMICalculateActivity extends AppCompatActivity {
     private TextView tvBmiValue, tvBmiCategory;
     private Button btnEdit, btnCalculate;
     private boolean isEditing = false;
-    private BMIDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,17 +25,12 @@ public class BMICalculateActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_bmicalculate);
 
-        dbHelper = new BMIDatabaseHelper(this);
-
         etHeight = findViewById(R.id.etHeight);
         etWeight = findViewById(R.id.etWeight);
         tvBmiValue = findViewById(R.id.tvBmiValue);
         tvBmiCategory = findViewById(R.id.tvBmiCategory);
         btnEdit = findViewById(R.id.btnEdit);
         btnCalculate = findViewById(R.id.btnSave);
-
-        // Load the most recent BMI record if exists
-        loadLatestBMIRecord();
 
         // Initialize in non-editing mode
         setEditMode(false);
@@ -48,15 +42,6 @@ public class BMICalculateActivity extends AppCompatActivity {
                 setEditMode(false);
             }
         });
-    }
-
-    private void loadLatestBMIRecord() {
-        float[] record = dbHelper.getLatestBMIRecord();
-        if (record != null) {
-            etHeight.setText(String.valueOf(record[0])); // height
-            etWeight.setText(String.valueOf(record[1])); // weight
-            displayBMIResults(record[2]); // bmi
-        }
     }
 
     private void toggleEditMode() {
@@ -99,11 +84,6 @@ public class BMICalculateActivity extends AppCompatActivity {
 
             // Display results
             displayBMIResults(bmi);
-
-            // Save to database
-            String category = tvBmiCategory.getText().toString();
-            dbHelper.saveBMIRecord(height, weight, bmi, category);
-
             return true;
 
         } catch (NumberFormatException e) {
@@ -149,11 +129,5 @@ public class BMICalculateActivity extends AppCompatActivity {
         // Show result message
         String message = "Your BMI: " + roundedBMI + " (" + category + ")";
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    protected void onDestroy() {
-        dbHelper.close();
-        super.onDestroy();
     }
 }

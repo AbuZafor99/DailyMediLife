@@ -28,6 +28,4 @@
     <color name="x_color">#0066CC</color>  <!-- Your dark blue -->
     <color name="o_color">#008080</color>  <!-- Your teal -->
     <color name="game_border">#B3E0FF</color>  <!-- Lighter blue -->
-
-    
 </resources>

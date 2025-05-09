@@ -31,14 +31,21 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Home extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     // Views
-    private CardView bmiCV, waterIntakeCV, funCV;
+    private CardView bmiCV, waterIntakeCV, funCV, cardHealthTips;
     private TextView tvDate, seeAllFoodTV, seeAllTaskTV, seeAllPrescriptions, tvBmiValue, tvWaterValue;
-    private TextView tvNextMeal, tvNextMed, tvMedCount;
+    private TextView tvNextMeal, tvNextMed, tvMedCount, tvTipTitle, tvTipContent;
     private Button addPrescriptions, addFood;
     private ImageView ivProfile;
 
@@ -79,6 +86,9 @@ public class Home extends AppCompatActivity {
         loadPrescriptionData();
         loadNextMeal();
 
+        // Fetch health tip
+        fetchHealthTip();
+
         // Setup all click listeners
         setupClickListeners();
     }
@@ -98,7 +108,10 @@ public class Home extends AppCompatActivity {
         tvWaterValue = findViewById(R.id.tvWaterValue);
         tvNextMed = findViewById(R.id.tvNextMed);
         tvMedCount = findViewById(R.id.tvMedCount);
-        tvNextMeal = findViewById(R.id.tvNextMeal); // Make sure this ID exists in your XML
+        tvNextMeal = findViewById(R.id.tvNextMeal);
+        tvTipTitle = findViewById(R.id.tvTipTitle);
+        tvTipContent = findViewById(R.id.tvTipContent);
+        cardHealthTips = findViewById(R.id.cardHealthTips);
     }
 
     private void setupClickListeners() {
@@ -144,6 +157,54 @@ public class Home extends AppCompatActivity {
         addFood.setOnClickListener(v -> {
             showAddFoodDialog();
         });
+
+        // Health Tips Card - Refresh on click
+        cardHealthTips.setOnClickListener(v -> fetchHealthTip());
+    }
+
+    private void fetchHealthTip() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.adviceslip.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        HealthTipApi api = retrofit.create(HealthTipApi.class);
+
+        api.getRandomHealthTip().enqueue(new Callback<HealthTipResponse>() {
+            @Override
+            public void onResponse(Call<HealthTipResponse> call, Response<HealthTipResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String advice = response.body().getSlip().getAdvice();
+                    tvTipTitle.setText("Health Tip");
+                    tvTipContent.setText(advice);
+                } else {
+                    showDefaultTip();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HealthTipResponse> call, Throwable t) {
+                showDefaultTip();
+            }
+        });
+    }
+
+    private void showDefaultTip() {
+        String[] defaultTips = {
+                "Drink at least 8 glasses of water daily",
+                "Get 7-8 hours of sleep each night",
+                "Exercise for 30 minutes daily",
+                "Eat plenty of fruits and vegetables",
+                "Take breaks from sitting every 30 minutes",
+                "Practice deep breathing for stress relief",
+                "Limit processed food and sugar intake"
+        };
+
+        Random random = new Random();
+        String tip = defaultTips[random.nextInt(defaultTips.length)];
+
+        tvTipTitle.setText("Health Tip");
+        tvTipContent.setText(tip);
     }
 
     private void loadPrescriptionData() {
@@ -457,6 +518,7 @@ public class Home extends AppCompatActivity {
         loadLatestBP();
         loadPrescriptionData();
         loadNextMeal();
+        fetchHealthTip();
     }
 
     @Override

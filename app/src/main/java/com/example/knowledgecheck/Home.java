@@ -34,12 +34,18 @@ import java.util.Locale;
 
 public class Home extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    // Views
     private CardView bmiCV, waterIntakeCV, funCV;
     private TextView tvDate, seeAllFoodTV, seeAllTaskTV, seeAllPrescriptions, tvBmiValue, tvWaterValue;
+    private TextView tvNextMed, tvMedCount;
     private Button addPrescriptions, addFood;
     private ImageView ivProfile;
+
+    // Database Helpers
     private BMIDatabaseHelper bmiDbHelper;
     private BloodPressureDatabaseHelper bpDbHelper;
+    private PrescriptionDatabaseHelper prescriptionDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,7 @@ public class Home extends AppCompatActivity {
         // Initialize database helpers
         bmiDbHelper = new BMIDatabaseHelper(this);
         bpDbHelper = new BloodPressureDatabaseHelper(this);
+        prescriptionDbHelper = new PrescriptionDatabaseHelper(this);
 
         // Handle edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -58,50 +65,215 @@ public class Home extends AppCompatActivity {
             return insets;
         });
 
+        // Initialize all views
         initViews();
-        setCurrentDate();
-        loadLatestBMI(); // Load BMI value from database
-        loadLatestBP();  // Load blood pressure value from database
 
+        // Set current date
+        setCurrentDate();
+
+        // Load data from databases
+        loadLatestBMI();
+        loadLatestBP();
+        loadPrescriptionData();
+
+        // Setup all click listeners
+        setupClickListeners();
+    }
+
+    private void initViews() {
+        tvDate = findViewById(R.id.tvDate);
+        bmiCV = findViewById(R.id.cardBmi);
+        waterIntakeCV = findViewById(R.id.cardWaterIntake);
+        seeAllFoodTV = findViewById(R.id.seeAllFoodTV);
+        seeAllTaskTV = findViewById(R.id.seeAllTaskTV);
+        funCV = findViewById(R.id.funCV);
+        ivProfile = findViewById(R.id.ivProfile);
+        seeAllPrescriptions = findViewById(R.id.tvSeeAllPrescriptions);
+        addFood = findViewById(R.id.btnAddFood);
+        addPrescriptions = findViewById(R.id.btnAddPrescription);
+        tvBmiValue = findViewById(R.id.tvBmiValue);
+        tvWaterValue = findViewById(R.id.tvWaterValue);
+        tvNextMed = findViewById(R.id.tvNextMed);
+        tvMedCount = findViewById(R.id.tvMedCount);
+    }
+
+    private void setupClickListeners() {
+        // BMI Card
         bmiCV.setOnClickListener(v -> {
             startActivity(new Intent(Home.this, BMICalculateActivity.class));
         });
 
+        // Water Intake (Blood Pressure) Card
         waterIntakeCV.setOnClickListener(v -> {
             showBPInputDialog();
         });
 
+        // See All Food
         seeAllFoodTV.setOnClickListener(v -> {
-            Intent intent = new Intent(Home.this, FoodScheduleActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(Home.this, FoodScheduleActivity.class));
         });
 
+        // See All Prescriptions
         seeAllPrescriptions.setOnClickListener(v -> {
-            Intent intent = new Intent(Home.this, PrescriptionsScheaduleActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(Home.this, PrescriptionsScheaduleActivity.class));
         });
 
-        //-----------2 btn-----------
-        addPrescriptions.setOnClickListener(v -> {
-            showAddPrescriptionDialog();
-        });
-
-        addFood.setOnClickListener(v -> {
-            showAddFoodDialog();
-        });
-        //---------------------------
-
+        // See All Tasks
         seeAllTaskTV.setOnClickListener(v -> {
-            Intent intent = new Intent(Home.this, TasksActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(Home.this, TasksActivity.class));
         });
 
+        // Fun Card
         funCV.setOnClickListener(v -> {
             startActivity(new Intent(Home.this, TicTacToeActivity.class));
         });
 
-        // Set click listener for profile image
+        // Profile Image
         ivProfile.setOnClickListener(v -> showProfilePopupMenu(v));
+
+        // Add Prescription Button
+        addPrescriptions.setOnClickListener(v -> {
+            showAddPrescriptionDialog();
+        });
+
+        // Add Food Button
+        addFood.setOnClickListener(v -> {
+            showAddFoodDialog();
+        });
+    }
+
+    private void loadPrescriptionData() {
+        // Get next medication from database
+        Prescription nextMed = prescriptionDbHelper.getNextMedication();
+        int prescriptionCount = prescriptionDbHelper.getPrescriptionCount();
+
+        // Update UI with the data
+        if (nextMed != null) {
+            tvNextMed.setText(nextMed.getMedicationType() + " - " + nextMed.getTime());
+        } else {
+            tvNextMed.setText("No upcoming medications");
+        }
+
+        tvMedCount.setText(prescriptionCount + " active prescriptions");
+    }
+
+    private void showAddPrescriptionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_prescriptions, null);
+        builder.setView(dialogView);
+
+        // Initialize dialog views
+        Spinner spinnerMedicationType = dialogView.findViewById(R.id.spinnerMealType);
+        EditText etMedicationTime = dialogView.findViewById(R.id.etMealTime);
+        Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
+        EditText etPrescriptionDetails = dialogView.findViewById(R.id.etMealDetails);
+        CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
+        Button btnSavePrescription = dialogView.findViewById(R.id.btnSaveMeal);
+
+        // Setup spinner with medication types
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.medication_types, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMedicationType.setAdapter(spinnerAdapter);
+
+        AlertDialog dialog = builder.create();
+
+        // Time picker click listener
+        btnTimePicker.setOnClickListener(v -> {
+            showTimePicker(etMedicationTime);
+        });
+
+        // Save prescription click listener
+        btnSavePrescription.setOnClickListener(v -> {
+            savePrescription(
+                    spinnerMedicationType,
+                    etMedicationTime,
+                    etPrescriptionDetails,
+                    cbHasAlarm,
+                    dialog
+            );
+        });
+
+        dialog.show();
+    }
+
+    private void showTimePicker(EditText etMedicationTime) {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(
+                this,
+                (view, selectedHour, selectedMinute) -> {
+                    String amPm;
+                    if (selectedHour < 12) {
+                        amPm = "AM";
+                        if (selectedHour == 0) {
+                            selectedHour = 12;
+                        }
+                    } else {
+                        amPm = "PM";
+                        if (selectedHour > 12) {
+                            selectedHour -= 12;
+                        }
+                    }
+
+                    String formattedTime = String.format(Locale.getDefault(),
+                            "%02d:%02d %s", selectedHour, selectedMinute, amPm);
+                    etMedicationTime.setText(formattedTime);
+                },
+                hour,
+                minute,
+                false
+        );
+        timePickerDialog.show();
+    }
+
+    private void savePrescription(Spinner spinnerMedicationType, EditText etMedicationTime,
+                                  EditText etPrescriptionDetails, CheckBox cbHasAlarm, AlertDialog dialog) {
+        String medicationType = spinnerMedicationType.getSelectedItem().toString();
+        String medicationTime = etMedicationTime.getText().toString().trim();
+        String prescriptionDetails = etPrescriptionDetails.getText().toString().trim();
+        boolean hasAlarm = cbHasAlarm.isChecked();
+
+        // Validate inputs
+        if (medicationTime.isEmpty()) {
+            Toast.makeText(this, "Please select medication time", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (prescriptionDetails.isEmpty()) {
+            Toast.makeText(this, "Please enter prescription details", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get appropriate icon based on medication type
+        int iconId = getMedicationIcon(medicationType);
+
+        // Create and add new prescription to database
+        Prescription newPrescription = new Prescription(medicationType, medicationTime, prescriptionDetails, hasAlarm, iconId);
+        long id = prescriptionDbHelper.addPrescription(newPrescription);
+
+        if (id != -1) {
+            Toast.makeText(this, "Prescription added", Toast.LENGTH_SHORT).show();
+            loadPrescriptionData(); // Refresh the display
+            dialog.dismiss();
+        } else {
+            Toast.makeText(this, "Failed to add prescription", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private int getMedicationIcon(String medicationType) {
+        switch (medicationType.toLowerCase()) {
+            case "antibiotic":
+                return R.drawable.antibiotic_icon;
+            case "painkiller":
+                return R.drawable.antibiotic_icon;
+            case "vitamins":
+                return R.drawable.antibiotic_icon;
+            default:
+                return R.drawable.antibiotic_icon;
+        }
     }
 
     private void loadLatestBMI() {
@@ -150,90 +322,11 @@ public class Home extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showAddPrescriptionDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_prescriptions, null);
-        builder.setView(dialogView);
-
-        // Initialize dialog views
-        Spinner spinnerMedicationType = dialogView.findViewById(R.id.spinnerMealType);
-        EditText etMedicationTime = dialogView.findViewById(R.id.etMealTime);
-        Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
-        EditText etPrescriptionDetails = dialogView.findViewById(R.id.etMealDetails);
-        CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
-        Button btnSavePrescription = dialogView.findViewById(R.id.btnSaveMeal);
-
-        // Setup spinner with medication types
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.medication_types, android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerMedicationType.setAdapter(spinnerAdapter);
-
-        AlertDialog dialog = builder.create();
-
-        // Time picker click listener
-        btnTimePicker.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-
-            TimePickerDialog timePickerDialog = new TimePickerDialog(
-                    this,
-                    (view, selectedHour, selectedMinute) -> {
-                        String amPm;
-                        if (selectedHour < 12) {
-                            amPm = "AM";
-                            if (selectedHour == 0) {
-                                selectedHour = 12;
-                            }
-                        } else {
-                            amPm = "PM";
-                            if (selectedHour > 12) {
-                                selectedHour -= 12;
-                            }
-                        }
-
-                        String formattedTime = String.format(Locale.getDefault(),
-                                "%02d:%02d %s", selectedHour, selectedMinute, amPm);
-                        etMedicationTime.setText(formattedTime);
-                    },
-                    hour,
-                    minute,
-                    false
-            );
-            timePickerDialog.show();
-        });
-
-        btnSavePrescription.setOnClickListener(v -> {
-            String medicationType = spinnerMedicationType.getSelectedItem().toString();
-            String medicationTime = etMedicationTime.getText().toString().trim();
-            String prescriptionDetails = etPrescriptionDetails.getText().toString().trim();
-            boolean hasAlarm = cbHasAlarm.isChecked();
-
-            if (medicationTime.isEmpty()) {
-                Toast.makeText(this, "Please select medication time", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (prescriptionDetails.isEmpty()) {
-                Toast.makeText(this, "Please enter prescription details", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Here you would save the prescription to your database or list
-            Toast.makeText(this, "Prescription added", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
-
-        dialog.show();
-    }
-
     private void showAddFoodDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_meal, null);
         builder.setView(dialogView);
 
-        // Initialize dialog views
         Spinner spinnerMealType = dialogView.findViewById(R.id.spinnerMealType);
         EditText etMealTime = dialogView.findViewById(R.id.etMealTime);
         Button btnTimePicker = dialogView.findViewById(R.id.btnTimePicker);
@@ -241,7 +334,6 @@ public class Home extends AppCompatActivity {
         CheckBox cbHasAlarm = dialogView.findViewById(R.id.cbHasAlarm);
         Button btnSaveMeal = dialogView.findViewById(R.id.btnSaveMeal);
 
-        // Setup spinner with meal types
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.meal_types, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -249,7 +341,6 @@ public class Home extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
 
-        // Time picker click listener
         btnTimePicker.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -298,7 +389,6 @@ public class Home extends AppCompatActivity {
                 return;
             }
 
-            // Here you would save the meal to your database or list
             Toast.makeText(this, "Meal added", Toast.LENGTH_SHORT).show();
             dialog.dismiss();
         });
@@ -310,7 +400,7 @@ public class Home extends AppCompatActivity {
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.getMenuInflater().inflate(R.menu.menu_layout, popupMenu.getMenu());
 
-        // Force show icons if needed (optional)
+        // Force show icons if needed
         try {
             java.lang.reflect.Field[] fields = popupMenu.getClass().getDeclaredFields();
             for (java.lang.reflect.Field field : fields) {
@@ -340,21 +430,6 @@ public class Home extends AppCompatActivity {
         popupMenu.show();
     }
 
-    private void initViews() {
-        tvDate = findViewById(R.id.tvDate);
-        bmiCV = findViewById(R.id.cardBmi);
-        waterIntakeCV = findViewById(R.id.cardWaterIntake);
-        seeAllFoodTV = findViewById(R.id.seeAllFoodTV);
-        seeAllTaskTV = findViewById(R.id.seeAllTaskTV);
-        funCV = findViewById(R.id.funCV);
-        ivProfile = findViewById(R.id.ivProfile);
-        seeAllPrescriptions = findViewById(R.id.tvSeeAllPrescriptions);
-        addFood = findViewById(R.id.btnAddFood);
-        addPrescriptions = findViewById(R.id.btnAddPrescription);
-        tvBmiValue = findViewById(R.id.tvBmiValue);
-        tvWaterValue = findViewById(R.id.tvWaterValue);
-    }
-
     private void setCurrentDate() {
         if (tvDate == null) return;
 
@@ -372,12 +447,14 @@ public class Home extends AppCompatActivity {
         // Refresh values when returning to the activity
         loadLatestBMI();
         loadLatestBP();
+        loadPrescriptionData();
     }
 
     @Override
     protected void onDestroy() {
         bmiDbHelper.close();
         bpDbHelper.close();
+        prescriptionDbHelper.close();
         super.onDestroy();
     }
 }

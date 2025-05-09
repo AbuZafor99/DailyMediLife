@@ -14,52 +14,49 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 public class PrescriptionsScheaduleActivity extends AppCompatActivity {
-
     private RecyclerView prescriptionsRecyclerView;
     private Button btnAddPrescription;
     private List<Prescription> prescriptionList = new ArrayList<>();
     private PrescriptionAdapter adapter;
+    private PrescriptionDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prescriptions_scheadule);
 
+        // Initialize database helper
+        dbHelper = new PrescriptionDatabaseHelper(this);
+
         // Initialize views
-        prescriptionsRecyclerView = findViewById(R.id.mealRV); // Note: Using mealRV ID from your XML
-        btnAddPrescription = findViewById(R.id.addMealBTN); // Note: Using addMealBTN ID from your XML
+        prescriptionsRecyclerView = findViewById(R.id.mealRV);
+        btnAddPrescription = findViewById(R.id.addMealBTN);
 
         // Setup RecyclerView
         prescriptionsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PrescriptionAdapter(prescriptionList);
         prescriptionsRecyclerView.setAdapter(adapter);
 
-        // Load sample data
-        loadSamplePrescriptions();
+        // Load prescriptions from database
+        loadPrescriptionsFromDatabase();
 
         // Set click listener for add button
         btnAddPrescription.setOnClickListener(v -> showAddPrescriptionDialog());
     }
 
-    private void loadSamplePrescriptions() {
-        prescriptionList.add(new Prescription("Antibiotic", "08:00 AM", "Take with food", true, R.drawable.breakfast_icon));
-        prescriptionList.add(new Prescription("Painkiller", "12:00 PM", "1 tablet every 6 hours", false, R.drawable.lunch_icon));
-        prescriptionList.add(new Prescription("Vitamins", "07:00 PM", "After dinner", true, R.drawable.dinner_icon));
-
+    private void loadPrescriptionsFromDatabase() {
+        prescriptionList.clear();
+        prescriptionList.addAll(dbHelper.getAllPrescriptions());
         adapter.notifyDataSetChanged();
     }
 
@@ -86,16 +83,13 @@ public class PrescriptionsScheaduleActivity extends AppCompatActivity {
 
         // Time picker click listener
         btnTimePicker.setOnClickListener(v -> {
-            // Get current time
             Calendar calendar = Calendar.getInstance();
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
             int minute = calendar.get(Calendar.MINUTE);
 
-            // Create time picker dialog
             TimePickerDialog timePickerDialog = new TimePickerDialog(
                     this,
                     (view, selectedHour, selectedMinute) -> {
-                        // Format the time
                         String amPm;
                         if (selectedHour < 12) {
                             amPm = "AM";
@@ -115,9 +109,8 @@ public class PrescriptionsScheaduleActivity extends AppCompatActivity {
                     },
                     hour,
                     minute,
-                    false // 24-hour format set to false for AM/PM
+                    false
             );
-
             timePickerDialog.show();
         });
 
@@ -141,19 +134,29 @@ public class PrescriptionsScheaduleActivity extends AppCompatActivity {
             // Get appropriate icon based on medication type
             int iconId = getMedicationIcon(medicationType);
 
-            // Create and add new prescription
+            // Create and add new prescription to database
             Prescription newPrescription = new Prescription(medicationType, medicationTime, prescriptionDetails, hasAlarm, iconId);
-            prescriptionList.add(newPrescription);
-            adapter.notifyDataSetChanged();
+            long id = dbHelper.addPrescription(newPrescription);
 
-            dialog.dismiss();
+            if (id != -1) {
+                // Set the ID returned from database
+                newPrescription.setId(id);
+
+                // Add to the list and refresh
+                prescriptionList.add(newPrescription);
+                adapter.notifyDataSetChanged();
+
+                Toast.makeText(this, "Prescription added", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            } else {
+                Toast.makeText(this, "Failed to add prescription", Toast.LENGTH_SHORT).show();
+            }
         });
 
         dialog.show();
     }
 
     private int getMedicationIcon(String medicationType) {
-        // You can customize these icons based on your needs
         switch (medicationType.toLowerCase()) {
             case "antibiotic":
                 return R.drawable.antibiotic_icon;
@@ -164,6 +167,12 @@ public class PrescriptionsScheaduleActivity extends AppCompatActivity {
             default:
                 return R.drawable.antibiotic_icon;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        dbHelper.close();
+        super.onDestroy();
     }
 
     // Prescription Adapter class
@@ -209,43 +218,6 @@ public class PrescriptionsScheaduleActivity extends AppCompatActivity {
                 tvMedicationDetails = itemView.findViewById(R.id.tvMealDetails);
                 btnAlarm = itemView.findViewById(R.id.btnAlarm);
             }
-        }
-    }
-
-    // Prescription model class
-    private static class Prescription {
-        private String medicationType;
-        private String time;
-        private String details;
-        private boolean hasAlarm;
-        private int iconRes;
-
-        public Prescription(String medicationType, String time, String details, boolean hasAlarm, int iconRes) {
-            this.medicationType = medicationType;
-            this.time = time;
-            this.details = details;
-            this.hasAlarm = hasAlarm;
-            this.iconRes = iconRes;
-        }
-
-        public String getMedicationType() {
-            return medicationType;
-        }
-
-        public String getTime() {
-            return time;
-        }
-
-        public String getDetails() {
-            return details;
-        }
-
-        public boolean hasAlarm() {
-            return hasAlarm;
-        }
-
-        public int getIconRes() {
-            return iconRes;
         }
     }
 }

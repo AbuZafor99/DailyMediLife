@@ -32,13 +32,17 @@ public class BMICalculateActivity extends AppCompatActivity {
         btnEdit = findViewById(R.id.btnEdit);
         btnCalculate = findViewById(R.id.btnSave);
 
+<<<<<<< Updated upstream
         // Initialize in non-editing mode
+=======
+        loadLatestBMIRecord();
+
+>>>>>>> Stashed changes
         setEditMode(false);
 
         btnEdit.setOnClickListener(v -> toggleEditMode());
         btnCalculate.setOnClickListener(v -> {
             if (calculateAndDisplayBMI()) {
-                // Only disable editing if calculation was successful
                 setEditMode(false);
             }
         });
@@ -60,7 +64,6 @@ public class BMICalculateActivity extends AppCompatActivity {
 
         btnEdit.setText(isEditing ? "Cancel" : "Edit");
 
-        // Clear focus when exiting edit mode
         if (!isEditing) {
             etHeight.clearFocus();
             etWeight.clearFocus();
@@ -69,21 +72,24 @@ public class BMICalculateActivity extends AppCompatActivity {
 
     private boolean calculateAndDisplayBMI() {
         try {
-            // Get input values
             float height = Float.parseFloat(etHeight.getText().toString());
             float weight = Float.parseFloat(etWeight.getText().toString());
 
-            // Validate input
             if (height <= 0 || weight <= 0) {
                 Toast.makeText(this, "Please enter valid values", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            // Calculate BMI
             float bmi = calculateBMI(height, weight);
 
-            // Display results
             displayBMIResults(bmi);
+<<<<<<< Updated upstream
+=======
+
+            String category = tvBmiCategory.getText().toString();
+            dbHelper.saveBMIRecord(height, weight, bmi, category);
+
+>>>>>>> Stashed changes
             return true;
 
         } catch (NumberFormatException e) {
@@ -93,18 +99,14 @@ public class BMICalculateActivity extends AppCompatActivity {
     }
 
     private float calculateBMI(float heightCm, float weightKg) {
-        // Convert height from cm to meters
         float heightM = heightCm / 100;
-        // Calculate BMI: weight(kg) / (height(m)^2)
         return weightKg / (heightM * heightM);
     }
 
     private void displayBMIResults(float bmi) {
-        // Round to 1 decimal place
         float roundedBMI = Math.round(bmi * 10) / 10f;
         tvBmiValue.setText(String.valueOf(roundedBMI));
 
-        // Determine category
         String category;
         int colorRes;
 

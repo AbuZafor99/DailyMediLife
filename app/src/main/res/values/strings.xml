@@ -5,5 +5,8 @@
     <string name="blank_data">----</string>
     <string name="see_all">See All</string>
     <string name="diet_task">Food &amp; Task</string>
+    <string name="tictacktoe">TicTacToe</string>
+    <string name="reset_c">Reset Current Game</string>
+    <string name="reset_f">Reset Full Game (Scores + Board)</string>
     <string name="add_prescription">Add Prescription</string>
 </resources>

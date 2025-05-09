@@ -8,7 +8,6 @@
     android:padding="16dp"
     tools:context=".TicTacToeActivity">
 
-    <!-- Header -->
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -23,7 +22,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TicTacToe"
+            android:text="@string/tictacktoe"
             android:layout_marginStart="10dp"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -35,7 +34,6 @@
 
     </LinearLayout>
 
-    <!-- Game Status Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/statusCard"
         android:layout_width="match_parent"
@@ -58,6 +56,7 @@
                 android:layout_height="wrap_content"
                 android:text="Player X's Turn"
                 android:textAlignment="center"
+                android:textStyle="bold"
                 android:textSize="18sp" />
 
             <LinearLayout
@@ -90,7 +89,6 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Game Board Centered -->
     <GridLayout
         android:id="@+id/grd"
         android:layout_width="wrap_content"
@@ -100,7 +98,6 @@
         android:rowCount="3"
         android:layout_marginTop="16dp">
 
-        <!-- 9 Buttons for the grid -->
         <Button android:id="@+id/btn1" style="@style/buttonStyle" android:onClick="check" />
         <Button android:id="@+id/btn2" style="@style/buttonStyle" android:onClick="check" />
         <Button android:id="@+id/btn3" style="@style/buttonStyle" android:onClick="check" />
@@ -112,15 +109,30 @@
         <Button android:id="@+id/btn9" style="@style/buttonStyle" android:onClick="check" />
     </GridLayout>
 
-    <!-- Reset Button at Bottom -->
-    <Button
-        android:id="@+id/btnReset"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="Reset Game"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/darkBlue"
-        android:textSize="16sp"
-        android:layout_marginTop="24dp" />
+        android:orientation="vertical"
+        android:layout_marginTop="24dp">
+
+        <Button
+            android:id="@+id/btnResetGame"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/reset_c"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/darkBlue"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnResetAll"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/reset_f"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/red"
+            android:textSize="16sp" />
+    </LinearLayout>
 </RelativeLayout>

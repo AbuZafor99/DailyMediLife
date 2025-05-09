@@ -14,7 +14,17 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
 
     private final List<Meal> mealList;
 
+<<<<<<< Updated upstream
     public MealAdapter(List<Meal> mealList) {
+=======
+    public interface OnMealClickListener {
+        void onMealClick(Meal meal);
+        void onAlarmToggle(Meal meal, boolean isOn);
+        void onDeleteClick(Meal meal);
+    }
+
+    public MealAdapter(List<Meal> mealList, OnMealClickListener listener) {
+>>>>>>> Stashed changes
         this.mealList = mealList;
     }
 
@@ -41,7 +51,14 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         private final ImageView ivMealIcon;
         private final TextView tvMealType;
         private final TextView tvMealDetails;
+<<<<<<< Updated upstream
         private final ImageButton btnAlarm;
+=======
+        private final ImageButton btnAlarm, btnDelete;
+        private final OnMealClickListener listener;
+
+        private final List<Meal> mealList;
+>>>>>>> Stashed changes
 
         public MealViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -49,6 +66,24 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             tvMealType = itemView.findViewById(R.id.tvMealType);
             tvMealDetails = itemView.findViewById(R.id.tvMealDetails);
             btnAlarm = itemView.findViewById(R.id.btnAlarm);
+<<<<<<< Updated upstream
+=======
+            btnDelete = itemView.findViewById(R.id.btnDelete);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onMealClick(mealList.get(position));
+                }
+            });
+
+            btnDelete.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onDeleteClick(mealList.get(position));
+                }
+            });
+>>>>>>> Stashed changes
         }
 
         public void bind(Meal meal) {

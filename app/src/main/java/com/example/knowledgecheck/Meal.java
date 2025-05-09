@@ -16,9 +16,14 @@ public class Meal {
         this.iconRes = iconRes;
     }
 
+<<<<<<< Updated upstream
     // Getters and Setters
     public String getMealType() {
         return mealType;
+=======
+    public Meal(String mealType, String time, String description, boolean alarmOn, int iconRes) {
+        this(-1, mealType, time, description, alarmOn, iconRes);
+>>>>>>> Stashed changes
     }
 
     public void setMealType(String mealType) {

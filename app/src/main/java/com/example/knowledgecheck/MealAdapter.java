@@ -11,21 +11,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder> {
-
     private final List<Meal> mealList;
+    private final OnMealClickListener listener;
 
-<<<<<<< Updated upstream
-    public MealAdapter(List<Meal> mealList) {
-=======
     public interface OnMealClickListener {
         void onMealClick(Meal meal);
         void onAlarmToggle(Meal meal, boolean isOn);
-        void onDeleteClick(Meal meal);
     }
 
     public MealAdapter(List<Meal> mealList, OnMealClickListener listener) {
->>>>>>> Stashed changes
         this.mealList = mealList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -33,7 +29,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
     public MealViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.food_list, parent, false);
-        return new MealViewHolder(view);
+        return new MealViewHolder(view, listener, mealList);
     }
 
     @Override
@@ -51,24 +47,18 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         private final ImageView ivMealIcon;
         private final TextView tvMealType;
         private final TextView tvMealDetails;
-<<<<<<< Updated upstream
         private final ImageButton btnAlarm;
-=======
-        private final ImageButton btnAlarm, btnDelete;
         private final OnMealClickListener listener;
-
         private final List<Meal> mealList;
->>>>>>> Stashed changes
 
-        public MealViewHolder(@NonNull View itemView) {
+        public MealViewHolder(@NonNull View itemView, OnMealClickListener listener, List<Meal> mealList) {
             super(itemView);
+            this.listener = listener;
+            this.mealList = mealList;
             ivMealIcon = itemView.findViewById(R.id.ivMealIcon);
             tvMealType = itemView.findViewById(R.id.tvMealType);
             tvMealDetails = itemView.findViewById(R.id.tvMealDetails);
             btnAlarm = itemView.findViewById(R.id.btnAlarm);
-<<<<<<< Updated upstream
-=======
-            btnDelete = itemView.findViewById(R.id.btnDelete);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -76,14 +66,6 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
                     listener.onMealClick(mealList.get(position));
                 }
             });
-
-            btnDelete.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onDeleteClick(mealList.get(position));
-                }
-            });
->>>>>>> Stashed changes
         }
 
         public void bind(Meal meal) {
@@ -91,13 +73,19 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             tvMealType.setText(meal.getMealType());
             tvMealDetails.setText(String.format("%s - %s", meal.getTime(), meal.getDescription()));
 
-            btnAlarm.setImageResource(meal.isAlarmOn() ?
-                    R.drawable.alarm_on_icon : R.drawable.alarm_off_icon);
+            btnAlarm.setImageResource(meal.isAlarmOn()
+                    ? R.drawable.alarm_on_icon
+                    : R.drawable.alarm_off_icon);
 
             btnAlarm.setOnClickListener(v -> {
-                meal.setAlarmOn(!meal.isAlarmOn());
-                btnAlarm.setImageResource(meal.isAlarmOn() ?
-                        R.drawable.alarm_on_icon : R.drawable.alarm_off_icon);
+                if (listener != null) {
+                    boolean newAlarmState = !meal.isAlarmOn();
+                    meal.setAlarmOn(newAlarmState);
+                    btnAlarm.setImageResource(newAlarmState
+                            ? R.drawable.alarm_on_icon
+                            : R.drawable.alarm_off_icon);
+                    listener.onAlarmToggle(meal, newAlarmState);
+                }
             });
         }
     }

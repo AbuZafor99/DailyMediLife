@@ -1,6 +1,6 @@
 # DailyMediLife - Smart Health Companion 🏥💊
 
-![DailyMediLife Banner](https://drive.google.com/thumbnail?id=1nnS5H9Q9LY6AEgeOIyRDJ-IGvpHxd8Np&sz=w1000)
+![DailyMediLife Banner](https://drive.google.com/thumbnail?id=1nnS5H9Q9LY6AEgeOIyRDJ-IGvpHxd8Np&sz=w250)
 
 An intelligent Android application that helps users manage medications, track health metrics, schedule doctor appointments, and maintain food diaries - all in one place.
 
